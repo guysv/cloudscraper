@@ -29,6 +29,7 @@ except ImportError:
 # ------------------------------------------------------------------------------- #
 
 from .exceptions import (
+    CloudflareException,
     CloudflareLoopProtection,
     CloudflareIUAMError
 )
@@ -287,20 +288,10 @@ class CloudScraper(Session):
             # ------------------------------------------------------------------------------- #
 
             if cloudflareV1.is_Challenge_Request(response):
-                # ------------------------------------------------------------------------------- #
-                # Try to solve the challenge and send it back
-                # ------------------------------------------------------------------------------- #
-
-                if self._solveDepthCnt >= self.solveDepth:
-                    _ = self._solveDepthCnt
-                    self.simpleException(
-                        CloudflareLoopProtection,
-                        f"!!Loop Protection!! We have tried to solve {_} time(s) in a row."
+                self.simpleException(
+                        CloudflareException,
+                        f"Challenges are not implemented"
                     )
-
-                self._solveDepthCnt += 1
-
-                response = cloudflareV1.Challenge_Response(response, **kwargs)
             else:
                 if not response.is_redirect and response.status_code not in [429, 503]:
                     self._solveDepthCnt = 0
